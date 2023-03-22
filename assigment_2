@@ -84,3 +84,46 @@ main = mainview(root)
 root.title('Graph')
 root.wm_geometry('600x600')
 root.mainloop()
+
+
+
+
+
+class new_graph():
+    def Graph():
+        """
+        Function creates a new, empty undirected graph.
+        
+        Arguments:
+            None
+        Return:
+            Empty graph object
+        """
+        pass
+        
+    def addVertex(vert):
+        """
+        
+        
+        Arguments:
+            
+        Return:
+            
+        """
+        pass
+    def addVerticesFromList(vertList):
+        pass
+    def addEdge(fromVert, toVert):
+        pass
+    def addEdgesFromList(edgeList):
+        pass
+    getVertices():
+        pass
+    getEdges():
+        pass
+    getNeighbours(vertKey):
+        pass
+    saveGraph(graph):
+        pass
+    getShortestPaths(fromVert):
+        pass
