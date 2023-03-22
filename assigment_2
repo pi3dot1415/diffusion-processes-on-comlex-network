@@ -1,0 +1,72 @@
+import networkx as nx
+import tkinter as tk
+
+class mainview (tk.Frame):
+
+    def __init__ (self, root):
+        tk.Frame.__init__(self, root)
+        self.root=root
+        self.mainpage()
+
+    def mainpage (self):
+        self.var_edge=tk.StringVar()
+        self.var_edge_list=tk.StringVar()
+        self.var_vertice=tk.StringVar()
+        self.var_vertice_list=tk.StringVar()
+
+        self.h = 20
+        self.w = 200
+        self.col_1 = 15
+        self.col_2 = self.col_1 + self.w + 30
+
+        self.make_graph_b = tk.Button(self.root, text="make a graph", command=self.make_new_graph)
+        self.make_graph_b.place(x=40, y=15, width=self.w, height=self.h)
+
+        self.make_edge_l = tk.Label(self.root, text="write name of edge")
+        self.make_edge_l.place(x=self.col_1, y=60, width=self.w, height=self.h)
+        self.make_edge_e = tk.Entry(self.root, textvariable=self.var_edge)
+        self.make_edge_e.place(x=self.col_1, y=85, width=self.w, height=self.h)
+        self.make_edge_b = tk.Button(self.root, text="add an edge", command=self.add_new_edge)
+        self.make_edge_b.place(x=self.col_1, y=110, width=self.w, height=self.h)
+
+        self.make_edges_l = tk.Label(self.root, text="write names of edges in a list")
+        self.make_edges_l.place(x=self.col_1, y=155, width=self.w, height=self.h)
+        self.make_edges_e = tk.Entry(self.root, textvariable=self.var_edge)
+        self.make_edges_e.place(x=self.col_1, y=180, width=self.w, height=self.h)
+        self.make_edges_b = tk.Button(self.root, text="add an edge", command=self.add_new_edges)
+        self.make_edges_b.place(x=self.col_1, y=205, width=self.w, height=self.h)
+    
+        self.make_vertice_l = tk.Label(self.root, text="write name of vertice")
+        self.make_vertice_l.place(x=self.col_2, y=60, width=self.w, height=self.h)
+        self.make_vertice_e = tk.Entry(self.root, textvariable=self.var_vertice)
+        self.make_vertice_e.place(x=self.col_2, y=85, width=self.w, height=self.h)
+        self.make_vertice_b = tk.Button(self.root, text="add an vertice", command=self.add_new_vertice)
+        self.make_vertice_b.place(x=self.col_2, y=110, width=self.w, height=self.h)
+
+        self.make_vertices_l = tk.Label(self.root, text="write names of vertices in a list")
+        self.make_vertices_l.place(x=self.col_2, y=155, width=self.w, height=self.h)
+        self.make_vertices_e = tk.Entry(self.root, textvariable=self.var_vertice)
+        self.make_vertices_e.place(x=self.col_2, y=180, width=self.w, height=self.h)
+        self.make_vertices_b = tk.Button(self.root, text="add an vertice", command=self.add_new_vertices)
+        self.make_vertices_b.place(x=self.col_2, y=205, width=self.w, height=self.h)
+
+    def make_new_graph(self):
+        print(1)
+
+    def add_new_edge(self):
+        print(2)
+
+    def add_new_edges(self):
+        print(3)
+
+    def add_new_vertice(self):
+        print(4)
+
+    def add_new_vertices(self):
+        print(5)
+
+root=tk.Tk()
+main = mainview(root)
+root.title('Graph')
+root.wm_geometry('600x600')
+root.mainloop()
