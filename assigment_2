@@ -1,73 +1,65 @@
 import networkx as nx
 
-class new_graph():
-    def Graph():
+class Graph():
+
+    def __init__(self):
         """
         Function creates a new, empty undirected graph.
         
         Arguments:
             None
         Return:
-            Empty graph object
+            Empty graph object [class]
         """
-        pass
-        
-    def addVertex(vert):
+        self.graph=nx.Graph()
+
+    def addVertex(self, vert):
         """
-        
+        Add single node to the graph.
         
         Arguments:
-            vert
+            vert - name of vertex [int, float or string]
         Return:
-            
+            None
         """
-        pass
+        try:
+            self.graph.add_node(vert)
+        except:
+            print("Incorrect value")
+        #print(f"done, node {vert} added")
 
-    def addVerticesFromList(vertList):
+    def addVerticesFromList(self, vertList):
         """
-        
+        Add multiple vertices to the graph.
         
         Arguments:
-            
+            vertList - list of names of vertices [list]
         Return:
-            
+            None
         """
-        pass
+        try:
+            self.graph.add_nodes_from(vertList)
+        except:
+            print("Incorrect value")
 
-    def addEdge(fromVert, toVert):
+    def addEdge(self, fromVert, toVert):
         """
-        
-        
+        Adding edge between 2 nodes (which don't have to already exist).
+        If edge connection between those nodes exist then command is ignored.
+        the order of fromVert and toVert doesn't matter.
+
         Arguments:
-            
+            fromVert - name of first vert [int, float or string]
+            toVert - name of second vert [int, float or string]
         Return:
-            
+            None
         """
-        pass
+        try:
+            self.graph.add_edge(fromVert, toVert)
+        except:
+            print("Incorrect values")
 
-    def addEdgesFromList(edgeList):
-        """
-        
-        
-        Arguments:
-            
-        Return:
-            
-        """
-        pass
-
-    getVertices():
-        """
-        
-        
-        Arguments:
-            
-        Return:
-            
-        """
-        pass
-
-    getEdges():
+    def addEdgesFromList(self, edgeList):
         """
         
         
@@ -78,7 +70,7 @@ class new_graph():
         """
         pass
 
-    getNeighbours(vertKey):
+    def getVertices(self):
         """
         
         
@@ -89,7 +81,7 @@ class new_graph():
         """
         pass
 
-    saveGraph(graph):
+    def getEdges(self):
         """
         
         
@@ -100,7 +92,29 @@ class new_graph():
         """
         pass
 
-    getShortestPaths(fromVert):
+    def getNeighbours(self, vertKey):
+        """
+        
+        
+        Arguments:
+            
+        Return:
+            
+        """
+        pass
+
+    def saveGraph(self, graph):
+        """
+        
+        
+        Arguments:
+            
+        Return:
+            
+        """
+        pass
+
+    def getShortestPaths(self, fromVert):
         """
         
         
