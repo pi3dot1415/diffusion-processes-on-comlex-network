@@ -11,7 +11,9 @@ class Graph():
         Return:
             Empty graph object [class]
         """
-        self.graph=nx.Graph()
+        self.allEdges=[]
+        self.allVertices=[]
+
 
     def addVertex(self, vert):
         """
@@ -23,10 +25,9 @@ class Graph():
             None
         """
         try:
-            self.graph.add_node(vert)
+            self.allVertices.append(vert)
         except:
             print("Incorrect value")
-        #print(f"done, node {vert} added")
 
     def addVerticesFromList(self, vertList):
         """
@@ -38,7 +39,7 @@ class Graph():
             None
         """
         try:
-            self.graph.add_nodes_from(vertList)
+            self.graph.allVertices+=vertList
         except:
             print("Incorrect value")
 
@@ -55,7 +56,7 @@ class Graph():
             None
         """
         try:
-            self.graph.add_edge(fromVert, toVert)
+            self.allEdges.append((fromVert, toVert))
         except:
             print("Incorrect values")
 
