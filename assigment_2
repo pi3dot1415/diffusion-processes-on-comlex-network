@@ -57,12 +57,16 @@ class Graph():
         Return:
             bl (bool): True if there is connection and false otherwise
         """
+
+        #Creating variable to store edges data wihout weights
         tempVar=[]
         for edges in self.allEdges: tempVar+=[edges[:2]]
-        if (fromVert, toVert) or (toVert, fromVert) in tempVar:
-            return(False)
+        
+        #Checking if particural edge exist (2 cases because undirected graph)
+        if (fromVert, toVert) in tempVar or (toVert, fromVert) in tempVar:
+            return(True) #if edge already was in graph returns True
         else:
-            return(True)
+            return(False) #returns False otherwise
     
     def addEdge(self, fromVert, toVert, weight=None):
         """
@@ -78,18 +82,20 @@ class Graph():
             None
         """
 
-        try:
-            if fromVert not in self.allVertices:
-                self.allVertices.append(fromVert)
-            if toVert not in self.allVertices:
-                self.allVertices.append(toVert)
-            bl = self.edgesChecker(fromVert, toVert)
-            if weight and not bl:
-                self.allEdges.append((fromVert, toVert, weight))
-            elif not bl:
-                self.allEdges.append((fromVert, toVert))
-        except:
-            print("Incorrect values")
+        #Checking if any of vertices missing in the graph, if so, adding them 
+        if fromVert not in self.allVertices:
+            self.allVertices.append(fromVert)
+        if toVert not in self.allVertices:
+            self.allVertices.append(toVert)
+
+        #Checking if edge already exist
+        bl = self.edgesChecker(fromVert, toVert)
+        
+        #If not, adding it to the graph
+        if weight and not bl: #In case when weight is given
+            self.allEdges.append((fromVert, toVert, weight))
+        elif not bl: #Otherwise
+            self.allEdges.append((fromVert, toVert))
 
     def addEdgesFromList(self, edgeList):
         """
@@ -102,17 +108,18 @@ class Graph():
         Return:
             None
         """
-        try:
-            for edges in edgeList:
-                if edges[0] not in self.allVertices:
-                    self.allVertices.append(edges[0])
-                if edges[1] not in self.allVertices:
-                    self.allVertices.append(edges[1])
-                bl = self.edgesChecker(edges[0], edges[1])
-                if not bl:
-                    self.allEdges.append(edges)
-        except:
-            print("Incorrect value")
+
+        #Checking all of edges separetly
+        for edges in edgeList:
+            #Checking if any of vertices exist, and if not, adding them
+            if edges[0] not in self.allVertices:
+                self.allVertices.append(edges[0])
+            if edges[1] not in self.allVertices:
+                self.allVertices.append(edges[1])
+            #Checking if edge exist
+            bl = self.edgesChecker(edges[0], edges[1])
+            if not bl: #If not, adding it
+                self.allEdges.append(edges)
 
     def getVertices(self) -> list:
         """
@@ -123,6 +130,8 @@ class Graph():
         Return:
             (list): list of all vertices
         """
+
+        #Returns list of all vertices in the graph
         return(self.allVertices)
 
     def getEdges(self) -> list:
@@ -134,6 +143,8 @@ class Graph():
         Return:
             (list of tuples): list of all edges 
         """
+
+        #Returns list of all edges in the graph
         return(self.allEdges)
 
     def getNeighbours(self, vertKey) -> list:
@@ -146,13 +157,18 @@ class Graph():
             neighbours (list): list of neighbours
         """
         
+        #Creating variable to store list of neighbours
         neighbour_list = []
+
+        #Checking all of edges, if they contain vertKey
         for edges in self.allEdges:
+            #Because it can be on any position checking both cases
             if vertKey == edges[0]:
-                neighbour_list.append(edges[1])
+                neighbour_list.append(edges[1]) #Adding its pair to list
             elif vertKey == edges[1]:
                 neighbour_list.append(edges[0])
         
+        #Returns finished list of neighbours
         return (neighbour_list)
 
     def __contains__ (graph, vertKey) -> bool:
@@ -165,7 +181,8 @@ class Graph():
         Return:
             bl (bool): information if node is in graph 
         """
-
+        
+        #Returns information if particular node is in particular graph
         return(vertKey in graph.allVertices) 
 
     def saveGraph(self, graph):
