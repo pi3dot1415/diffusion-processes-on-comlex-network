@@ -1,5 +1,3 @@
-import networkx as nx
-
 class Graph():
 
     def __init__(self) -> object:
@@ -9,8 +7,10 @@ class Graph():
         Arguments:
             None
         Return:
-            graph (class): Empty graph object
+            graph (Graph): Empty graph object
         """
+        
+        #Creating variables which defining graph
         self.allEdges=[]
         self.allVertices=[]
 
@@ -19,16 +19,16 @@ class Graph():
         Add single node to the graph.
         
         Arguments:
-            vert (int, float or string): name of vertex
+            vert (any): name of vertex
         Return:
             None
         """
-        try:
-            if vert not in self.allVertices:
-                self.allVertices.append(vert)
-        except:
-            print("Incorrect value")
-        #print(f"done, node {vert} added")
+        
+        #Adding new vertex
+        
+        #Checking if vertex is already in the graph
+        if vert not in self.allVertices:
+            self.allVertices.append(vert) #if not, adding to the graph
 
     def addVerticesFromList(self, vertList):
         """
@@ -39,12 +39,13 @@ class Graph():
         Return:
             None
         """
-        try:
-            for verts in vertList:
-                if verts not in self.allVertices:
-                    self.allVertices.append(verts)
-        except:
-            print("Incorrect value")
+
+        #Adding new vertices
+        
+        #Checking if vertices are in the the graph
+        for verts in vertList:
+            if verts not in self.allVertices:
+                self.allVertices.append(verts) #if not, adding to the graph
 
     def edgesChecker(self, fromVert, toVert) -> bool:
         """
@@ -70,18 +71,22 @@ class Graph():
         the order of fromVert and toVert doesn't matter.
 
         Arguments:
-            fromVert (int, float or string): name of first vert 
-            toVert (int, float or string): name of second vert
+            fromVert (any): name of first vert 
+            toVert (any): name of second vert
             weight (any [optional]): adds weight to 
         Return:
             None
         """
 
         try:
+            if fromVert not in self.allVertices:
+                self.allVertices.append(fromVert)
+            if toVert not in self.allVertices:
+                self.allVertices.append(toVert)
             bl = self.edgesChecker(fromVert, toVert)
-            if weight and  not bl:
-                self.allEdges.append((fromVert, toVert, weight=weight))
-            elif bl:
+            if weight and not bl:
+                self.allEdges.append((fromVert, toVert, weight))
+            elif not bl:
                 self.allEdges.append((fromVert, toVert))
         except:
             print("Incorrect values")
@@ -98,7 +103,11 @@ class Graph():
             None
         """
         try:
-            for edges in self.allEdges:
+            for edges in edgeList:
+                if edges[0] not in self.allVertices:
+                    self.allVertices.append(edges[0])
+                if edges[1] not in self.allVertices:
+                    self.allVertices.append(edges[1])
                 bl = self.edgesChecker(edges[0], edges[1])
                 if not bl:
                     self.allEdges.append(edges)
@@ -114,7 +123,7 @@ class Graph():
         Return:
             (list): list of all vertices
         """
-        return(list(self.graph.nodes))
+        return(self.allVertices)
 
     def getEdges(self) -> list:
         """
@@ -125,7 +134,7 @@ class Graph():
         Return:
             (list of tuples): list of all edges 
         """
-        return(list(self.graph.edges))
+        return(self.allEdges)
 
     def getNeighbours(self, vertKey) -> list:
         """
@@ -138,21 +147,30 @@ class Graph():
         """
         
         neighbour_list = []
-        list_of_edges = self.getVertices()
+        for edges in self.allEdges:
+            if vertKey == edges[0]:
+                neighbour_list.append(edges[1])
+            elif vertKey == edges[1]:
+                neighbour_list.append(edges[0])
         
-        for elem in self.graph[vertKey]:
-            neighbour_list.append((elem, elem in list_of_edges))
-        
-        #is it needed?
-        for edge in list_of_edges:
-            if edge not in neighbour_list:
-                neighbour_list.append((edge, False))
-
         return (neighbour_list)
+
+    def __contains__ (graph, vertKey) -> bool:
+        """
+        Function return information if vertice is in the graph
+        
+        Arguments:
+            vertKey (any): checked node name
+            graph (Graph)): checked graph 
+        Return:
+            bl (bool): information if node is in graph 
+        """
+
+        return(vertKey in graph.allVertices) 
 
     def saveGraph(self, graph):
         """
-        
+        Save graph in text file using dot representation.
         
         Arguments:
             graph
@@ -162,13 +180,35 @@ class Graph():
         #how to do this?
         pass
 
-    def getShortestPaths(self, fromVert):
+    def checkPath(self, vertex):
         """
-        
+        Function check with which new vertices exist edge to particular node.
+
+        Arguments:
+            vertex (any): started node
+        Return:
+            None
+        """
+
+        for vert in self.getNeighbours(vertex):
+            if vert not in self.connectedList:
+                self.shortestPaths[vert]= self.shortestPaths[vertex]+[vert]
+                self.connectedList.append(vert)
+
+    def getShortestPaths(self, fromVert) -> dict:
+        """
+        Finding shortest path from particular node to nodes which are connected with it.
         
         Arguments:
-            
+            fromVert (any): vertex for which we checking paths
         Return:
-            
+            shortest_paths (dict): shortest paths for nodes which are connected to fromVert
         """
-        return (nx.shortest_path(self.graph, source=fromVert))
+
+        self.connectedList=[fromVert]
+        self.shortestPaths={fromVert: [fromVert]}
+        
+        for vertex in self.connectedList:
+            self.checkPath(vertex)
+
+        return (self.shortestPaths)
