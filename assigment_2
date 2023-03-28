@@ -2,117 +2,164 @@ import networkx as nx
 
 class Graph():
 
-    def __init__(self):
+    def __init__(self) -> object:
         """
         Function creates a new, empty undirected graph.
         
         Arguments:
             None
         Return:
-            Empty graph object [class]
+            graph (class): Empty graph object
         """
         self.allEdges=[]
         self.allVertices=[]
-
 
     def addVertex(self, vert):
         """
         Add single node to the graph.
         
         Arguments:
-            vert - name of vertex [int, float or string]
+            vert (int, float or string): name of vertex
         Return:
             None
         """
         try:
-            self.allVertices.append(vert)
+            if vert not in self.allVertices:
+                self.allVertices.append(vert)
         except:
             print("Incorrect value")
+        #print(f"done, node {vert} added")
 
     def addVerticesFromList(self, vertList):
         """
         Add multiple vertices to the graph.
         
         Arguments:
-            vertList - list of names of vertices [list]
+            vertList (list): list of names of vertices
         Return:
             None
         """
         try:
-            self.graph.allVertices+=vertList
+            for verts in vertList:
+                if verts not in self.allVertices:
+                    self.allVertices.append(verts)
         except:
             print("Incorrect value")
 
-    def addEdge(self, fromVert, toVert):
+    def edgesChecker(self, fromVert, toVert) -> bool:
         """
-        Adding edge between 2 nodes (which don't have to already exist).
-        If edge connection between those nodes exist then command is ignored.
+        Checking if particular vertices have edge between them.
+
+        Arguments:
+            fromVert (any): first vertex
+            toVert (any): second vertex
+        Return:
+            bl (bool): True if there is connection and false otherwise
+        """
+        tempVar=[]
+        for edges in self.allEdges: tempVar+=[edges[:2]]
+        if (fromVert, toVert) or (toVert, fromVert) in tempVar:
+            return(False)
+        else:
+            return(True)
+    
+    def addEdge(self, fromVert, toVert, weight=None):
+        """
+        Adding one edge between 2 nodes (which don't have to already exist).
+        If connection between those nodes exist then command is ignored.
         the order of fromVert and toVert doesn't matter.
 
         Arguments:
-            fromVert - name of first vert [int, float or string]
-            toVert - name of second vert [int, float or string]
+            fromVert (int, float or string): name of first vert 
+            toVert (int, float or string): name of second vert
+            weight (any [optional]): adds weight to 
         Return:
             None
         """
+
         try:
-            self.allEdges.append((fromVert, toVert))
+            bl = self.edgesChecker(fromVert, toVert)
+            if weight and  not bl:
+                self.allEdges.append((fromVert, toVert, weight=weight))
+            elif bl:
+                self.allEdges.append((fromVert, toVert))
         except:
             print("Incorrect values")
 
     def addEdgesFromList(self, edgeList):
         """
-        
+        Adding multiple edges between 2 nodes each (which don't have to already exist).
+        If connection between some of these nodes exist then connection is not added for them.
+        the order of nodes in tuple or order of tuples doesn't matter.
         
         Arguments:
-            
+            edgeList (list of tuples): list of tuples with edges
         Return:
-            
+            None
         """
-        pass
+        try:
+            for edges in self.allEdges:
+                bl = self.edgesChecker(edges[0], edges[1])
+                if not bl:
+                    self.allEdges.append(edges)
+        except:
+            print("Incorrect value")
 
-    def getVertices(self):
+    def getVertices(self) -> list:
         """
-        
+        Function returns list of all vertices in graph.
         
         Arguments:
-            
+            None
         Return:
-            
+            (list): list of all vertices
         """
-        pass
+        return(list(self.graph.nodes))
 
-    def getEdges(self):
+    def getEdges(self) -> list:
         """
-        
+        Function returns list of all edges in graph. 
         
         Arguments:
-            
+            None
         Return:
-            
+            (list of tuples): list of all edges 
         """
-        pass
+        return(list(self.graph.edges))
 
-    def getNeighbours(self, vertKey):
+    def getNeighbours(self, vertKey) -> list:
         """
-        
+        Returns list of vertices which are neighbours of particular node (vertKey).
         
         Arguments:
-            
+            vertKey (any): name of node
         Return:
-            
+            neighbours (list): list of neighbours
         """
-        pass
+        
+        neighbour_list = []
+        list_of_edges = self.getVertices()
+        
+        for elem in self.graph[vertKey]:
+            neighbour_list.append((elem, elem in list_of_edges))
+        
+        #is it needed?
+        for edge in list_of_edges:
+            if edge not in neighbour_list:
+                neighbour_list.append((edge, False))
+
+        return (neighbour_list)
 
     def saveGraph(self, graph):
         """
         
         
         Arguments:
-            
+            graph
         Return:
             
         """
+        #how to do this?
         pass
 
     def getShortestPaths(self, fromVert):
@@ -124,4 +171,4 @@ class Graph():
         Return:
             
         """
-        pass
+        return (nx.shortest_path(self.graph, source=fromVert))
