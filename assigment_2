@@ -68,16 +68,17 @@ class Graph():
         else:
             return(False) #returns False otherwise
     
-    def addEdge(self, fromVert:str, toVert:str, weight=None):
+    def addEdge(self, fromVert:str, toVert:str, weight:float=1):
         """
         Adding one edge between 2 nodes (which don't have to already exist).
         If connection between those nodes exist then command is ignored.
-        the order of fromVert and toVert doesn't matter.
+        the order of fromVert and toVert doesn't matter. 
+At default weight is set to 1
 
         Arguments:
             fromVert (any): name of first vert 
             toVert (any): name of second vert
-            weight (any [optional]): adds weight to 
+            weight (float [optional]): distance between nodes
         Return:
             None
         """
@@ -90,10 +91,7 @@ class Graph():
         bl = self.edgesChecker(fromVert, toVert)
         
         #If not, adding it to the graph
-        if weight and not bl: #In case when weight is given
-            self.allEdges.append((str(fromVert), str(toVert), weight))
-        elif not bl: #Otherwise
-            self.allEdges.append((str(fromVert), str(toVert)))
+        self.allEdges.append((str(fromVert), str(toVert), weight))
 
     def addEdgesFromList(self, edgeList:list):
         """
@@ -109,11 +107,10 @@ class Graph():
 
         #Adding all of edges separetly because they have to be checked
         for edges in edgeList:
-            #Checking if weight was given
-            if len(edges)==3:
-                weight=edges[2]
+            if len(edges)<3:
+                weight=1
             else:
-                weight=None
+                weight=edges[2]
             self.addEdge(edges[0], edges[1], weight)
 
     def getVertices(self) -> list:
