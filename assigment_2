@@ -14,12 +14,12 @@ class Graph():
         self.allEdges=[]
         self.allVertices=[]
 
-    def addVertex(self, vert):
+    def addVertex(self, vert:str):
         """
         Add single node to the graph.
         
         Arguments:
-            vert (any): name of vertex
+            vert (str): name of vertex
         Return:
             None
         """
@@ -28,9 +28,9 @@ class Graph():
         
         #Checking if vertex is already in the graph
         if vert not in self.allVertices:
-            self.allVertices.append(vert) #if not, adding to the graph
+            self.allVertices.append(str(vert)) #if not, adding to the graph
 
-    def addVerticesFromList(self, vertList):
+    def addVerticesFromList(self, vertList:list):
         """
         Add multiple vertices to the graph.
         
@@ -44,10 +44,10 @@ class Graph():
         
         #Checking if vertices are in the the graph
         for verts in vertList:
-            if verts not in self.allVertices:
-                self.allVertices.append(verts) #if not, adding to the graph
+            if str(verts) not in self.allVertices:
+                self.allVertices.append(str(verts)) #if not, adding to the graph
 
-    def edgesChecker(self, fromVert, toVert) -> bool:
+    def edgesChecker(self, fromVert:str, toVert:str) -> bool:
         """
         Checking if particular vertices have edge between them.
 
@@ -63,12 +63,12 @@ class Graph():
         for edges in self.allEdges: tempVar+=[edges[:2]]
         
         #Checking if particural edge exist (2 cases because undirected graph)
-        if (fromVert, toVert) in tempVar or (toVert, fromVert) in tempVar:
+        if (str(fromVert), str(toVert)) in tempVar or (str(toVert), str(fromVert)) in tempVar:
             return(True) #if edge already was in graph returns True
         else:
             return(False) #returns False otherwise
     
-    def addEdge(self, fromVert, toVert, weight=None):
+    def addEdge(self, fromVert:str, toVert:str, weight=None):
         """
         Adding one edge between 2 nodes (which don't have to already exist).
         If connection between those nodes exist then command is ignored.
@@ -82,22 +82,20 @@ class Graph():
             None
         """
 
-        #Checking if any of vertices missing in the graph, if so, adding them 
-        if fromVert not in self.allVertices:
-            self.allVertices.append(fromVert)
-        if toVert not in self.allVertices:
-            self.allVertices.append(toVert)
+        #Adding vertices to graph
+        self.addVertex(fromVert)
+        self.addVertex(toVert) 
 
         #Checking if edge already exist
         bl = self.edgesChecker(fromVert, toVert)
         
         #If not, adding it to the graph
         if weight and not bl: #In case when weight is given
-            self.allEdges.append((fromVert, toVert, weight))
+            self.allEdges.append((str(fromVert), str(toVert), weight))
         elif not bl: #Otherwise
-            self.allEdges.append((fromVert, toVert))
+            self.allEdges.append((str(fromVert), str(toVert)))
 
-    def addEdgesFromList(self, edgeList):
+    def addEdgesFromList(self, edgeList:list):
         """
         Adding multiple edges between 2 nodes each (which don't have to already exist).
         If connection between some of these nodes exist then connection is not added for them.
@@ -109,17 +107,14 @@ class Graph():
             None
         """
 
-        #Checking all of edges separetly
+        #Adding all of edges separetly because they have to be checked
         for edges in edgeList:
-            #Checking if any of vertices exist, and if not, adding them
-            if edges[0] not in self.allVertices:
-                self.allVertices.append(edges[0])
-            if edges[1] not in self.allVertices:
-                self.allVertices.append(edges[1])
-            #Checking if edge exist
-            bl = self.edgesChecker(edges[0], edges[1])
-            if not bl: #If not, adding it
-                self.allEdges.append(edges)
+            #Checking if weight was given
+            if len(edges)==3:
+                weight=edges[2]
+            else:
+                weight=None
+            self.addEdge(edges[0], edges[1], weight)
 
     def getVertices(self) -> list:
         """
@@ -147,7 +142,7 @@ class Graph():
         #Returns list of all edges in the graph
         return(self.allEdges)
 
-    def getNeighbours(self, vertKey) -> list:
+    def getNeighbours(self, vertKey:str) -> list:
         """
         Returns list of vertices which are neighbours of particular node (vertKey).
         
@@ -171,7 +166,7 @@ class Graph():
         #Returns finished list of neighbours
         return (neighbour_list)
 
-    def __contains__ (graph, vertKey) -> bool:
+    def __contains__ (graph, vertKey:str) -> bool:
         """
         Function return information if vertice is in the graph
         
@@ -185,19 +180,34 @@ class Graph():
         #Returns information if particular node is in particular graph
         return(vertKey in graph.allVertices) 
 
-    def saveGraph(self, graph):
+    def saveGraph(self, graph:str):
         """
         Save graph in text file using dot representation.
         
         Arguments:
-            graph
+            graph (str): name (or path) of file in which graph will be saved
         Return:
-            
+            None
         """
-        #how to do this?
-        pass
+        
+        #Creating variable to store text data
+        text=f"graph {graph}"+" {\n"
 
-    def checkPath(self, vertex):
+        for edges in self.allEdges:
+            text+=f"    {edges[0]} -- {edges[1]};\n"
+        
+        text+="}"
+        import os
+
+        try:
+            file = open(graph)
+        except:
+            file = open(f"{os.getcwd()}\\{graph}.txt", "w")
+        file.write(text)
+        file.close()
+        print(f"{os.getcwd()}\\{graph}.txt")
+
+    def checkPath(self, vertex:str):
         """
         Function check with which new vertices exist edge to particular node.
 
@@ -212,7 +222,7 @@ class Graph():
                 self.shortestPaths[vert]= self.shortestPaths[vertex]+[vert]
                 self.connectedList.append(vert)
 
-    def getShortestPaths(self, fromVert) -> dict:
+    def getShortestPaths(self, fromVert:str) -> dict:
         """
         Finding shortest path from particular node to nodes which are connected with it.
         
@@ -229,3 +239,18 @@ class Graph():
             self.checkPath(vertex)
 
         return (self.shortestPaths)
+
+G1 = Graph()
+
+listOfEdges = [("Alice","Bob"),("Bob","Gail"),("Irene","Gail"),("Carl","Alice"),("Gail","Harry"),
+                    ("Irene","Jen"),("Alice","David"),("Harry","Jen"),("Ernst","Frank"),("Alice","Ernst"),
+                    ("Jen","Gail"),("David","Carl"),("Alice","Frank"),("Harry","Irene"),("Carl","Frank")]
+                
+G1.addEdgesFromList(listOfEdges)
+
+print(G1.getVertices())
+print(G1.getEdges())
+print(G1.getNeighbours("Bob"))
+print(G1.getShortestPaths("Alice"))
+
+G1.saveGraph("name")
