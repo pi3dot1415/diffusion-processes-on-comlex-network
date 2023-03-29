@@ -180,32 +180,32 @@ class Graph():
         #Returns information if particular node is in particular graph
         return(vertKey in graph.allVertices) 
 
-    def saveGraph(self, graph:str):
+    def saveGraph(self, graph:str) -> str:
         """
         Save graph in text file using dot representation.
         
         Arguments:
-            graph (str): name (or path) of file in which graph will be saved
+            graph (str): name of file in which graph will be saved
         Return:
-            None
+            path (str): path to saved file
         """
+        #Importing os to be able making paths 
+        import os
         
         #Creating variable to store text data
         text=f"graph {graph}"+" {\n"
-
+        
+        #Adding connection of every edge to text file
         for edges in self.allEdges:
             text+=f"    {edges[0]} -- {edges[1]};\n"
         
         text+="}"
-        import os
 
-        try:
-            file = open(graph)
-        except:
-            file = open(f"{os.getcwd()}\\{graph}.txt", "w")
+        #Saving text to a file
+        file = open(f"{os.getcwd()}\\{graph}.txt", "w") #in case graph is name of file
         file.write(text)
         file.close()
-        print(f"{os.getcwd()}\\{graph}.txt")
+        return(f"{os.getcwd()}\\{graph}.txt")
 
     def checkPath(self, vertex:str):
         """
