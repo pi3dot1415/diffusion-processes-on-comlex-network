@@ -3,12 +3,288 @@ import networkx as nx
 import random
 import numpy as np
 
-class GraphGenerator ():
+class Graph():
+
+    def __init__(self) -> object:
+        """
+        Function creates a new, empty undirected graph.
+        
+        Arguments:
+            None
+        Return:
+            graph (Graph): Empty graph object
+        """
+        
+        #Creating variables which defining graph
+        self.allEdges=[]
+        self.allVertices=[]
+
+    def addVertex(self, vert:str):
+        """
+        Add single node to the graph.
+        
+        Arguments:
+            vert (str): name of vertex
+        Return:
+            None
+        """
+        
+        #Adding new vertex (function adds only unique vertices to avoid potential problems)
+        
+        #Checking if vertex is already in the graph
+        if vert not in self.allVertices:
+            self.allVertices.append(str(vert)) #if not, adding to the graph
+
+    def addVerticesFromList(self, vertList:list):
+        """
+        Add multiple vertices to the graph.
+        
+        Arguments:
+            vertList (list): list of names of vertices
+        Return:
+            None
+        """
+
+        #Adding new vertices (function adds only unique vertices to avoid potential problems)
+        
+        #Checking if vertices are in the the graph
+        for verts in vertList:
+            if str(verts) not in self.allVertices:
+                self.allVertices.append(str(verts)) #if not, adding to the graph
+
+    def edgesChecker(self, fromVert:str, toVert:str) -> bool:
+        """
+        Checking if particular vertices have edge between them.
+
+        Arguments:
+            fromVert (any): first vertex
+            toVert (any): second vertex
+        Return:
+            bl (bool): True if there is connection and false otherwise
+        """
+
+        #Creating variable to store edges data wihout weights
+        tempVar=[]
+        for edges in self.allEdges: tempVar+=[edges[:2]]
+        
+        #Checking if particural edge exist (2 cases because undirected graph)
+        if (str(fromVert), str(toVert)) in tempVar or (str(toVert), str(fromVert)) in tempVar:
+            return(True) #if edge already was in graph returns True
+        else:
+            return(False) #returns False otherwise
+    
+    def addEdge(self, fromVert:str, toVert:str, weight:float=1):
+        """
+        Adding one edge between 2 nodes (which don't have to already exist).
+        If connection between those nodes exist then command is ignored.
+        the order of fromVert and toVert doesn't matter. 
+        At default weight is set to 1
+
+        Arguments:
+            fromVert (any): name of first vert 
+            toVert (any): name of second vert
+            weight (float [optional]): distance between nodes
+        Return:
+            None
+        """
+
+        #Adding vertices to graph (function adds only unique vertices, as well as edges, to avoid potential problems)
+        self.addVertex(fromVert)
+        self.addVertex(toVert) 
+
+        #Checking if edge already exist 
+        bl = self.edgesChecker(fromVert, toVert)
+        
+        #If not, adding it to the graph
+        self.allEdges.append((str(fromVert), str(toVert), weight))
+
+    def addEdgesFromList(self, edgeList:list):
+        """
+        Adding multiple edges between 2 nodes each (which don't have to already exist).
+        If connection between some of these nodes exist then connection is not added for them.
+        the order of nodes in tuple or order of tuples doesn't matter. At default weights are equal 1.
+        
+        Arguments:
+            edgeList (list of tuples): list of tuples with edges and optionally weights
+        Return:
+            None
+        """
+
+        #Adding all of edges separetly because they have to be checked 
+        #(function adds only unique vertices, as well as edges, to avoid potential problems)
+        for edges in edgeList:
+            if len(edges)<3:
+                weight=1
+            else:
+                weight=edges[2]
+            self.addEdge(edges[0], edges[1], weight)
+
+    def getVertices(self) -> list:
+        """
+        Function returns list of all vertices in graph.
+        
+        Arguments:
+            None
+        Return:
+            (list): list of all vertices
+        """
+
+        #Returns list of all vertices in the graph
+        return(self.allVertices)
+
+    def getEdges(self) -> list:
+        """
+        Function returns list of all edges in graph. 
+        
+        Arguments:
+            None
+        Return:
+            (list of tuples): list of all edges 
+        """
+
+        #Returns list of all edges in the graph
+        return(self.allEdges)
+
+    def getNeighbours(self, vertKey:str, show_dist:bool=False) -> list|tuple:
+        """
+        Returns list of vertices which are neighbours of particular node (vertKey).
+        
+        Arguments:
+            vertKey (any): name of node
+            show_dist (bool): message if function should return also list of distances
+        Return:
+            neighbours (list): list of neighbours
+            distances (list (optional)): list of distances
+        """
+        
+        #Creating variable to store list of neighbours and distances
+        neighbour_list = []
+        distances = []
+        #Checking all of edges, if they contain vertKey
+        for edges in self.allEdges:
+            #Because it can be on any position checking both cases
+            if vertKey == edges[0]:
+                #Adding distances to neighbour if needed
+                if show_dist:
+                    distances.append(edges[2])
+                neighbour_list.append(edges[1]) #Adding its pair to list
+            elif vertKey == edges[1]:
+                neighbour_list.append(edges[0])
+                if show_dist:
+                    distances.append(edges[2])
+        
+        #Returns finished list of neighbours
+        if show_dist:
+            return(neighbour_list, distances)
+        else:
+            return (neighbour_list)
+
+    def __contains__ (graph, vertKey:str) -> bool:
+        """
+        Function return information if vertice is in the graph
+        
+        Arguments:
+            vertKey (any): checked node name
+            graph (Graph)): checked graph 
+        Return:
+            bl (bool): information if node is in graph 
+        """
+        
+        #Returns information if particular node is in particular graph
+        return(vertKey in graph.allVertices) 
+
+    def saveGraph(self, graph:str) -> str:
+        """
+        Save graph in text file using dot representation.
+        
+        Arguments:
+            graph (str): name of file in which graph will be saved
+        Return:
+            path (str): path to saved file
+        """
+        #Importing os to be able making paths 
+        import os
+        
+        #Creating variable to store text data
+        text=f"graph {graph}"+" {\n"
+        
+        #Adding connection of every edge to text file
+        for edges in self.allEdges:
+            text+=f"    {edges[0]} -- {edges[1]};\n"
+        
+        text+="}"
+
+        #Saving text to a file
+        file = open(f"{os.getcwd()}\\{graph}.txt", "w")
+        file.write(text)
+        file.close()
+        return(f"{os.getcwd()}\\{graph}.txt")
+
+
+    def getShortestPaths(self, fromVert:str) -> dict:
+        """
+        Finding shortest path from particular node to nodes which are connected with it.
+        
+        Warning!!! This function work only for positive weights of edges (In default set to 1).
+
+        Arguments:
+            fromVert (any): vertex for which we checking paths
+        Return:
+            shortest_paths (dict): shortest paths for nodes which are connected to fromVert
+        """
+        
+        #To find shortest paths I use Dijsktra algorithm so there are condition that weights have to be positive
+        
+        #Making variable to store vertices which should be visited
+        self.queue=self.allVertices
+        self.queue.remove(fromVert)
+
+        #Making library with information about vertices in graph in format {node: [path, dist]} with initial added fromVert
+        self.shortestPaths={fromVert: [[fromVert], 0]}
+
+        #Making loop which runs while all vertices are visit (situation where some vertices are unconected solved bellow) 
+        while len(self.queue)>0:
+            #Set closest value to inf (it will be reduced to min distance from non-visited vertices)
+            closest=float("inf")
+            #For already visited vertices
+            for vertex in self.shortestPaths:
+                #Get list of neighbours and distances to them
+                neighbours, distances = self.getNeighbours(vertex, show_dist=True)
+                #Checking if there is a single unconected vertice (important only at first step)
+                if neighbours == []:
+                    return(self.shortestPaths) #if so returning already made list of paths
+                #For all neighbours in queue checking if they are closer to fromVert than closest 
+                for i in range (len(neighbours)):
+                    if neighbours[i] in self.queue:
+                        if distances[i]+self.shortestPaths[vertex][1]<closest:
+                            #For vertice satisfying that condition seting closest to its distance to fromVert
+                            closest=distances[i]+self.shortestPaths[vertex][1]
+                            #And set its as potencialy next step and saving information which vertex was previous 
+                            nextStep=neighbours[i]
+                            previous=vertex
+            #Checking if next step is still in queue 
+            #(if not there left only uncenected vertices because we didn't find new vertice in this iteration)
+            if nextStep in self.queue:
+                #We add this step to dictionary of shortest paths and remove it ffrom queue
+                self.queue.remove(nextStep)
+                self.shortestPaths[nextStep]=[self.shortestPaths[previous][0]+[nextStep],
+                                              closest]
+            else:
+                break
+
+        return (self.shortestPaths)
+
+class GraphGenerator (Graph):
 
     def __init__(self) -> None:
-        self.graph=nx.Graph()
+        self.allVertices=[]
+        self.allEdges=[]
 
     def random_Graph (self, N:int, edges:int=-1, directed:bool=False):
+        """
+        Function generate random graph by information about number of nodes 
+        and edges (optional). Edges are There is possibility to generate either directed 
+        or undirected graph"""
         if edges<0 & directed:
             edges=random.randint(0, N*(N-1))
         elif edges<0:
@@ -17,24 +293,31 @@ class GraphGenerator ():
             edges = N*(N-1)
         elif edges>N*(N-1)/2 & (not directed):
             edges = N*(N-1)/2
-        nodeList=np.arange(N)
-        edgesList=[]
+        self.allVertices = np.arange(N)
+        self.allEdges = []
 
-        for i in range(edges):
-            for j in range(edges):
-                if i!=j:
-                    edgesList.append([i,j])
+        for i in range(N):
+            for j in range(N):
+                if i>=j & (not directed):
+                    self.allEdges.append([i,j])
+                elif i!=j:
+                    self.allEdges.append([i,j])
         
-        random.shuffle(edgesList)
-        edgesList=edgesList[:edges]
+        random.shuffle(self.allEdges)
+        self.allEdges=self.allEdges[:edges]
 
-        print(edgesList)
+        print(self.allEdges)
 
     def wattStrogatzGraph (self, N:int):
         pass
 
-    def BarabasiAlbertGraph (self,N:int):
-        pass
+    def barabasiAlbertGraph (self,N:int, M:list):
+        probability = []
+        self.addEdgesFromList[M]
+        for verts in self.allVertices:
+            probability.append.(len())
+        
+
 
 G=GraphGenerator()
 
