@@ -1,0 +1,37 @@
+import tweety
+import networkx as nx
+
+#From: https://docs.tweepy.org/en/stable/getting_started.html#introduction
+auth = tweepy.OAuth1UserHandler(
+    consumer_key,
+    consumer_secret, 
+    access_token, 
+    access_token_secret
+)
+
+api = tweepy.API(auth)
+
+start_id = [""]
+G=nx.DiGraph()
+G.add_node(start_id[0])
+
+def next_level(G, user_id):
+    #https://docs.tweepy.org/en/stable/api.html#follow-search-and-get-users
+    user_ids = tweepy.API.get_follower_ids(user_id)
+    counter = 0
+    for ids in  user_ids:
+        G.add_edge((user_id, ids))
+        counter +=1
+        if counter>50:
+            break
+    return user_ids
+
+depth = 3
+
+for d in range(depth):
+    new_level=[]
+    for nds in start_id:
+        user_ids=next_level(G, nds)
+        new_level+=user_ids
+
+
