@@ -1,7 +1,7 @@
 import tweety
 import networkx as nx
 
-#From: https://docs.tweepy.org/en/stable/getting_started.html#introduction
+#source: https://docs.tweepy.org/en/stable/getting_started.html#introduction
 auth = tweepy.OAuth1UserHandler(
     consumer_key,
     consumer_secret, 
@@ -15,8 +15,20 @@ start_id = [""]
 G=nx.DiGraph()
 G.add_node(start_id[0])
 
-def next_level(G, user_id):
-    #https://docs.tweepy.org/en/stable/api.html#follow-search-and-get-users
+def next_level(G:nx.digraph, user_id:str) -> tuple:
+    """
+    Function check first 50 (or less) followers of particular user and add them to the graph.
+
+    Arguments:
+        G (nx.digraph): directed graph which store informtions about connections between users
+        user_id (str): id of particular user 
+    
+    Return:
+        G (nx.digraph): updated graph
+        user_ids (list): list of users following user "user_id"
+    """
+
+    #source: https://docs.tweepy.org/en/stable/api.html#follow-search-and-get-users
     user_ids = tweepy.API.get_follower_ids(user_id)
     counter = 0
     for ids in  user_ids:
@@ -24,14 +36,14 @@ def next_level(G, user_id):
         counter +=1
         if counter>50:
             break
-    return user_ids
+    return (G, user_ids)
 
 depth = 3
 
 for d in range(depth):
     new_level=[]
     for nds in start_id:
-        user_ids=next_level(G, nds)
+        (G, user_ids)=next_level(G, nds)
         new_level+=user_ids
 
 
