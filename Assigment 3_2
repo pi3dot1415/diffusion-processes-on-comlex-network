@@ -1,49 +1,50 @@
-import tweety
+#source: https://www.youtube.com/watch?v=NRgfgtzIhBQ
+#file 1 - downloading data
+
+import praw
 import networkx as nx
+import csv
 
-#source: https://docs.tweepy.org/en/stable/getting_started.html#introduction
-auth = tweepy.OAuth1UserHandler(
-    consumer_key,
-    consumer_secret, 
-    access_token, 
-    access_token_secret
-)
+reddit = praw.Reddit(
+    client_id="nvvtuctctycytcyt",
+    client_secret="byyctcutdrddeezudyif",
+    password="********",
+    user_agent="http://localhost:8888",
+    username="name",
+) #obviously different
+topic= "ChatGPT"
+print(topic)
+subreddit = reddit.subreddit(topic)
+subs=subreddit.hot(limit=25)
+#listOfConnections=[] 
 
-api = tweepy.API(auth)
+with open(f'data_file_topic_{topic}.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
 
-start_id = [""]
-G=nx.DiGraph()
-G.add_node(start_id[0])
-
-def next_level(G:nx.digraph, user_id:str) -> tuple:
-    """
-    Function check first 50 (or less) followers of particular user and add them to the graph.
-
-    Arguments:
-        G (nx.digraph): directed graph which store informtions about connections between users
-        user_id (str): id of particular user 
-    
-    Return:
-        G (nx.digraph): updated graph
-        user_ids (list): list of users following user "user_id"
-    """
-
-    #source: https://docs.tweepy.org/en/stable/api.html#follow-search-and-get-users
-    user_ids = tweepy.API.get_follower_ids(user_id)
-    counter = 0
-    for ids in  user_ids:
-        G.add_edge((user_id, ids))
-        counter +=1
-        if counter>50:
-            break
-    return (G, user_ids)
-
-depth = 3
-
-for d in range(depth):
-    new_level=[]
-    for nds in start_id:
-        (G, user_ids)=next_level(G, nds)
-        new_level+=user_ids
-
-
+    for s in subs:
+        print(s.author) #autor tematu
+        #listOfConnections.append([0, str(s.author), None])
+        writer.writerow([0, str(s.author)])
+        x=s.comments
+        for xs in x:
+            try:
+                writer.writerow([1, str(xs.author), str(s.author)])
+            except:
+                break
+            #listOfConnections.append([1, str(xs.author), str(s.author)])
+            y=xs.replies
+            for ys in y:
+                try:
+                    writer.writerow([2, str(ys.author), str(xs.author)])
+                except:
+                    break
+                #listOfConnections.append([2, str(ys.author), str(xs.author)])
+                z = ys.replies
+                for zs in z:
+                    try:
+                        writer.writerow([3,str(zs.author), str(ys.author)])
+                        #listOfConnections.append([3,str(zs.author), str(ys.author)])
+                    except:
+                        break
+                
+file.close()
