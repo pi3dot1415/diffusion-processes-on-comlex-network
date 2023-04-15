@@ -1,40 +1,69 @@
 #Part 2 - generating statistics
 
+#importing libraries
 import csv
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 
-topic = "ChatGPT"
+#set topic from previously prepared
+topic = "Pepsi"
+#create empty directed graph
 G = nx.DiGraph()
 
-with open(f'data_file_topic_{topic}.csv', 'r') as file:
-    csvreader = csv.reader(file)
+#open file to read data
+with open(f'data_file_topic_{topic}.csv', 'r') as myfile:
+    csvreader = csv.reader(myfile)
+    #going trough every row
     for row in csvreader:
-        try:
-            if row[0]=="0":
-                G.add_node(row[1])
-            else:
-                if row[1]==row[2]:
-                    continue
-                G.add_edge(row[1], row[2])
-        except:
-            print(row)
-            break
+        #checking it's a post (so it don't is a reply to anything)
+        if row[0]=="0":
+            #if it post taking info of author and put them as nodes
+            G.add_node(row[1])
+        else:
+            #if it comment/reply take info about author of this reply and of one for which it response and make edge between them
+            #Unless author response to him/herself
+            if row[1]==row[2]:
+                continue
+            G.add_edge(row[1], row[2])
 
-file.close()
-print(len(G.nodes), len(G.edges))
+#close file
+myfile.close()
 
-max=-1
+#printing number of nodes and edges
+print(f"nodes: {len(G.nodes)}, edges: {len(G.edges)}")
+
+#set maximmum number of neighbors to-1
+maxi=-1
+#and celebrities list to empty
 celebrities = []
+#set degrees and n_friends as empty list
+degrees =[]
+n_friends=[]
 
+#iterating for every node (to determine which are celebrities and if it friend paradox in network)
 for nds in G.nodes:
-    if G.degree[nds]>max:
-        max=G.degree[nds]
+    neighs = 0
+    for  verts in nx.neighbors(G, nds):
+        neighs+=1
+    n_friends.append(neighs)
+    if G.degree[nds]>maxi:
+        maxi=G.degree[nds]
         celebrities=[nds]
-    elif G.degree[nds]==max:
+    elif G.degree[nds]==maxi:
         celebrities.append(nds)
+    degrees.append(G.degree[nds])
+print(f"number of users which have more friends that in average: {sum(n_friends>np.mean(n_friends))}, (average = {np.mean(n_friends)})")
+print(f"connection of one celebrity: {maxi} \n  list of celebrities: {celebrities}")
+bc=nx.betweenness_centrality(G)
+print("Non-zero betweeness centralities:")
+for nds in G.nodes:
+    if bc[nds]>0:
+        print(f"  name: {nds},  coefficient: {bc[nds]}")
+#plt.hist(degrees, bins=list(np.arange(0.5, np.max(degrees)+1.5, 1)), edgecolor='black')
+#plt.xticks(list(np.arange(np.max(degrees)+1)))
+#plt.grid(True)
+#plt.show()
 
-
-
-#nx.draw_circular(G, node_size=2)
+nx.draw_circular(G, node_size=2)
 plt.show()
