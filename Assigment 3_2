@@ -6,11 +6,11 @@ import csv
 
 #auhentication to reddit
 reddit = praw.Reddit(
-    client_id="8PmivAaVfDHx3qeQdWygdw",
-    client_secret="OmQTP4J8ecM2jPpHPUkO33_GWitpNQ",
-    password=".44Magnum",
+    client_id="",
+    client_secret="",
+    password="",
     user_agent="http://localhost:8888",
-    username="ProbablyRandom314",
+    username="",
 )
 
 #choosing topic
