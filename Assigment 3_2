@@ -1,0 +1,64 @@
+#source: https://www.youtube.com/watch?v=NRgfgtzIhBQ
+
+#importing needed libraries
+import praw
+import csv
+
+#auhentication to reddit
+reddit = praw.Reddit(
+    client_id="",
+    client_secret="",
+    password="",
+    user_agent="http://localhost:8888",
+    username="",
+)
+
+#choosing topic
+topic= "ChatGPT"
+#selecting subredit conected to this topic 
+subreddit = reddit.subreddit(topic)
+#setting limit of results in cattegory "top" of this subreddit
+subs=subreddit.hot(limit=100)
+
+#open (if not exist creating and then open) and then writing there data
+#row has format:  n, author, prev_author
+#where: 
+#    n (int): level of response depth (i.e. post have n=0, comment n=1, replies n=2 etc.)
+#    author (str): name of author of entry
+#    prev_author (str): name of author of entry which response for (empty if n=0)
+
+with open(f'data_file_topic_{topic}_100.csv', 'w', newline='') as newfile:
+    writer = csv.writer(newfile)
+
+    #iterating for all posts taken from subreddit
+    for s in subs:
+        #writing data to csv file
+        writer.writerow([0, str(s.author)])
+        #checking list of comments
+        x=s.comments
+        #iterating for all comments taken to post
+        for xs in x:
+            #try is use to avoid problems where there are numerous comments and site returns "More comments" instead of reegular comment, so there is no author
+            try:
+                #write data to new row
+                writer.writerow([1, str(xs.author), str(s.author)])
+            #when there is error move to the next comment
+            except:
+                break
+            #for replies going throught the same procces like for comments
+            y=xs.replies
+            for ys in y:
+                try:
+                    writer.writerow([2, str(ys.author), str(xs.author)])
+                except:
+                    break
+                # and again for replies of replies
+                z = ys.replies
+                for zs in z:
+                    try:
+                        writer.writerow([3,str(zs.author), str(ys.author)])
+                    except:
+                        break
+
+#at the end close file 
+newfile.close()
