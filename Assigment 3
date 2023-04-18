@@ -1,6 +1,7 @@
 import networkx as nx
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 
 class GraphGenerator ():
 
@@ -122,7 +123,7 @@ class GraphGenerator ():
         WARNING: function overwrite previously created graphs
 
         Arguments:
-            N (int): Number of new nodes.
+            N (int): Desired number of nodes.
             M (list): Not empty list of edges from which graph will grow.
 
         Return:
@@ -134,16 +135,16 @@ class GraphGenerator ():
 
         #Adding given edges to the graph.
         self.graph.add_edges_from(M)
-
+        N=N-len(self.graph.nodes)
         #Creating list for which store names of vertices proportionally times to their number of neighbors. 
         node_weight = []
         for verts in self.graph.nodes:
             for ns in nx.neighbors(self.graph, verts):
                 node_weight.append(verts)
         
-        #Creating list of names of futer nodes (it has to be longer than N, because some names can be already used)
+        #Creating list of names of future nodes (it has to be longer than N, because some names can be already used)
         m=len(self.graph.nodes)
-        t=np.arange(N+m)
+        t=list(np.arange(N+m))
         
         #Removing names which were used in the graph
         for vertices in self.graph.nodes:
@@ -155,7 +156,7 @@ class GraphGenerator ():
         #Adding edges to graph (every new node is connected with randomly chosen 
         #(with probability proportional to number of neighbors) node from list M)
         for i in range(N):
-            self.graph.add_edge((random.choice(node_weight), t[i]))
+            self.graph.add_edge(random.choice(node_weight), t[i])
         
         return self.graph
 
@@ -182,24 +183,23 @@ def print_stats (Graph:nx.Graph|nx.DiGraph, name:str) -> list:
 #Creating graph object
 G=GraphGenerator()
 
-
 #Few examples of random graph
 R1 = G.random_Graph(N=2000, e=2500, directed=True)
 R2 = G.random_Graph(N=2000, e=4100, directed=False)
 R3 = G.random_Graph(N=2000, e=-1, directed=False)
 
-print_stats(R1, "random_1")
-print_stats(R2, "random_2")
-print_stats(R3, "random_3")
+RR1 = print_stats(R1, "random_1")
+RR2 = print_stats(R2, "random_2")
+RR3 = print_stats(R3, "random_3")
 
 #Examples of Watt-Strogatz graph
 W1 = G.wattStrogatzGraph(N=2000, K=10, beta=0.4)
 W2 = G.wattStrogatzGraph(N=2000, K=10, beta=0.75)
 W3 = G.wattStrogatzGraph(N=2000, K=26, beta=0.4)
 
-print_stats(W1, "watt_1")
-print_stats(W2, "watt_2")
-print_stats(W3, "watt_3")
+WW1 = print_stats(W1, "watt_1")
+WW2 = print_stats(W2, "watt_2")
+WW3 = print_stats(W3, "watt_3")
 
 #Cgreating lists to show usage of Barabasi-Albert graph
 M1=[]
@@ -213,13 +213,40 @@ for i in range (700):
         if p2<0.6:
             M2.append((i,j))
 
-print(True)
-
 #Barabasi-Albert examples
 B1 = G.barabasiAlbertGraph(N=2000, M=M1)
 B2 = G.barabasiAlbertGraph(N=2000, M=M1)
 B3 = G.barabasiAlbertGraph(N=2000, M=M2)
 
-print_stats(B1, "barabasi_1")
-print_stats(B2, "barabasi_2")
-print_stats(B3, "barabasi_3")
+BB1 = print_stats(B1, "barabasi_1")
+BB2 = print_stats(B2, "barabasi_2")
+BB3 = print_stats(B3, "barabasi_3")
+
+plt.subplot(3,3,1)
+plt.hist(RR1)
+plt.title("Random 1")
+plt.subplot(3,3,2)
+plt.hist(RR2)
+plt.title("Random 2")
+plt.subplot(3,3,3)
+plt.hist(RR3)
+plt.title("Random 3")
+plt.subplot(3,3,4)
+plt.hist(WW1)
+plt.title("Watt 1")
+plt.subplot(3,3,5)
+plt.hist(WW1)
+plt.title("Watt 2")
+plt.subplot(3,3,6)
+plt.hist(WW1)
+plt.title("Watt 3")
+plt.subplot(3,3,7)
+plt.hist(BB1)
+plt.title("Barabasi 1")
+plt.subplot(3,3,8)
+plt.hist(BB2)
+plt.title("Barabasi 2")
+plt.subplot(3,3,9)
+plt.hist(BB3)
+plt.title("Barabasi 3")
+plt.show()
