@@ -4,20 +4,22 @@ import numpy as np
 
 class GraphGenerator ():
 
-    def __init__(self, directed:bool=False) -> None:
+    def __init__(self) -> None:
         """
+        Class generated graph from one of 3 types:
+          - random graph (Erdos-Renyi)
+          - Watt-Strogatz graph
+          - Barabasi-Albert graph 
         """
-        self.directed = directed
-        if directed:
-            self.graph = nx.DiGraph()
-        else:
-            self.graph = nx.Graph()
+        pass
 
-    def random_Graph (self, N:int, e:int=-1) -> None:
+    def random_Graph (self, N:int, e:int=-1, directed:bool=False) -> nx.Graph|nx.DiGraph:
         """
         Function generate random graph by information about number of nodes 
         and edges (optional). There is possibility to generate either directed 
         or undirected graph but they cannot be connected with themselves.
+
+        WARNING: function overwrite previously created graphs
         
         Arguments:
             N (int): Number of nodes which will be added to the graph
@@ -26,18 +28,25 @@ class GraphGenerator ():
             directed (bool): Deafult "False", allows user to create directed graph.
         
         Returns:
-            None
+            self.graph (nx.Graph|nx.DiGraph): generated graph
         """
+
+        #Checking if graph has to be directed and set proper graph 
+        self.directed = directed
+        if directed:
+            self.graph = nx.DiGraph()
+        else:
+            self.graph = nx.Graph()
 
         #Checking if user set number of new edges to randomor if number is greater than possible number of edges.
         #Number of possible edges is greater in directed case so it has to be take into account.
-        if e<0 & self.directed:
+        if (e<0) & self.directed:
             e=random.randint(0, N*(N-1))
         elif e<0:
             e=random.randint(0, (N-1)*N/2)
-        elif e>N*(N-1) & self.directed:
+        elif (e>N*(N-1)) & self.directed:
             e = N*(N-1)
-        elif e>N*(N-1)/2 & (not self.directed):
+        elif (e>N*(N-1)/2) & (not self.directed):
             e = N*(N-1)/2
         
         #Adding nodes to graph
@@ -47,7 +56,7 @@ class GraphGenerator ():
         self.allEdges = []
         for i in range(N):
             for j in range(N):
-                if i>=j & (not self.directed):
+                if (i>j) & (not self.directed):
                     self.allEdges.append([i,j])
                 elif i!=j:
                     self.allEdges.append([i,j])
@@ -58,28 +67,70 @@ class GraphGenerator ():
         #Adding to graph first e edges from list
         self.graph.add_edges_from(self.allEdges[:e])
 
-    def wattStrogatzGraph (self, N:int) -> None:
+        return self.graph
+
+    def wattStrogatzGraph (self, N:int, K:int, beta:float) -> nx.Graph:
         """
         Function creates Watt-Strogatz graph.
 
+        WARNING: function overwrite previously created graphs 
+
         Arguments:
+            N (int): Desired number of nodes.
+            K (int): Has to be even number, and from interval [ln(N), N].
+            beta (float): Has to be from interval [0,1]
 
         Return:
-            None
+            self.graph (nx.Graph): created graph
         """
-        pass
+        
+        #Creating empty graph
+        self.graph = nx.Graph()
+        
+        #Implementing Watt-Srogatz algorithm 
 
-    def barabasiAlbertGraph (self, N:int, M:list) -> None:
+        #Creating edges in graph for all i and j from (0, N-1) which satisfying initial conditions
+        for i in range(N):
+            for j in range(N):
+                tempVar = abs(i-j)%(N-1-K/2)
+                if (tempVar>0) & (tempVar*2 <= K):
+                    self.graph.add_edge(i, j)
+
+        #Replacing randomly part of edges with new ones
+        for edges in self.graph.edges:
+            i=np.min(edges)
+            j=np.max(edges)
+            if (j>i) & (j <= i+K/2):
+                #With probability beta
+                if np.random.random()<beta:
+                    #Making list of all potential new neighbours
+                    potential_k = list(np.arange(N))
+                    for neigh in self.graph.neighbors(i): #Removing all neighbours of i
+                        potential_k.remove(neigh) 
+                    potential_k.remove(i) #Removing i to avoid self-loops
+                    #Removing edge between i and j
+                    self.graph.remove_edge(i,j)
+                    #Replace it with connection between i and randomly choosen one
+                    self.graph.add_edge(i, np.random.choice(potential_k))   
+        
+        return self.graph
+
+    def barabasiAlbertGraph (self, N:int, M:list) -> nx.Graph:
         """
         Function creates Barabasi-Albert graph (new nodes are connected with "old" ones which has choosen proportionally to number of their neighbours).
+        
+        WARNING: function overwrite previously created graphs
 
         Arguments:
             N (int): Number of new nodes.
             M (list): Not empty list of edges from which graph will grow.
 
         Return:
-            None
+            self.graph (nx.Graph): created graph
         """
+        
+        #
+        self.graph = nx.Graph()
 
         #Adding given edges to the graph.
         self.graph.add_edges_from(M)
@@ -92,7 +143,7 @@ class GraphGenerator ():
         
         #Creating list of names of futer nodes (it has to be longer than N, because some names can be already used)
         m=len(self.graph.nodes)
-        t=np.arrange(N+m)
+        t=np.arange(N+m)
         
         #Removing names which were used in the graph
         for vertices in self.graph.nodes:
@@ -105,7 +156,70 @@ class GraphGenerator ():
         #(with probability proportional to number of neighbors) node from list M)
         for i in range(N):
             self.graph.add_edge((random.choice(node_weight), t[i]))
+        
+        return self.graph
 
-G=GraphGenerator(directed=True)
+def print_stats (Graph:nx.Graph|nx.DiGraph, name:str) -> list:
+    """
+    Function to print graph statistics, moreover return list of degrees to generate plots
 
-G.random_Graph(N=2, edges=15)
+    Arguments:
+        Graph (nx.Graph|nx.DiGraph): graph object
+        name (str): name of graph (only to distinguish when printing)
+    """
+    
+    #Creating list to store degrees
+    degrees=[]
+    for deg in Graph.degree():
+        degrees.append(deg[1])
+
+    #Print needed statistics
+    print(f"Graph {name}: \n   nodes: {len(Graph.nodes)}, \n   edges:{len(Graph.edges)},")
+    print(f"   average degree: {np.mean(degrees)}, \n   degree variance: {np.var(degrees)}")
+
+    return degrees
+
+#Creating graph object
+G=GraphGenerator()
+
+
+#Few examples of random graph
+R1 = G.random_Graph(N=2000, e=2500, directed=True)
+R2 = G.random_Graph(N=2000, e=4100, directed=False)
+R3 = G.random_Graph(N=2000, e=-1, directed=False)
+
+print_stats(R1, "random_1")
+print_stats(R2, "random_2")
+print_stats(R3, "random_3")
+
+#Examples of Watt-Strogatz graph
+W1 = G.wattStrogatzGraph(N=2000, K=10, beta=0.4)
+W2 = G.wattStrogatzGraph(N=2000, K=10, beta=0.75)
+W3 = G.wattStrogatzGraph(N=2000, K=26, beta=0.4)
+
+print_stats(W1, "watt_1")
+print_stats(W2, "watt_2")
+print_stats(W3, "watt_3")
+
+#Cgreating lists to show usage of Barabasi-Albert graph
+M1=[]
+M2=[]
+for i in range (700):
+    for j in range (700):
+        p1=np.random.random()
+        if p1<0.15:
+            M1.append((i,j))
+        p2=np.random.random()
+        if p2<0.6:
+            M2.append((i,j))
+
+print(True)
+
+#Barabasi-Albert examples
+B1 = G.barabasiAlbertGraph(N=2000, M=M1)
+B2 = G.barabasiAlbertGraph(N=2000, M=M1)
+B3 = G.barabasiAlbertGraph(N=2000, M=M2)
+
+print_stats(B1, "barabasi_1")
+print_stats(B2, "barabasi_2")
+print_stats(B3, "barabasi_3")
