@@ -6,19 +6,19 @@ import csv
 
 #auhentication to reddit
 reddit = praw.Reddit(
-    client_id="nvvtuctctycytcyt",
-    client_secret="byyctcutdrddeezudyif",
-    password="********",
+    client_id="8PmivAaVfDHx3qeQdWygdw",
+    client_secret="OmQTP4J8ecM2jPpHPUkO33_GWitpNQ",
+    password=".44Magnum",
     user_agent="http://localhost:8888",
-    username="name",
-) #obviously different
+    username="ProbablyRandom314",
+)
 
 #choosing topic
-topic= "Pepsi"
+topic= "ChatGPT"
 #selecting subredit conected to this topic 
 subreddit = reddit.subreddit(topic)
 #setting limit of results in cattegory "top" of this subreddit
-subs=subreddit.hot(limit=25)
+subs=subreddit.hot(limit=100)
 
 #open (if not exist creating and then open) and then writing there data
 #row has format:  n, author, prev_author
@@ -27,7 +27,7 @@ subs=subreddit.hot(limit=25)
 #    author (str): name of author of entry
 #    prev_author (str): name of author of entry which response for (empty if n=0)
 
-with open(f'data_file_topic_{topic}.csv', 'w', newline='') as newfile:
+with open(f'data_file_topic_{topic}_100.csv', 'w', newline='') as newfile:
     writer = csv.writer(newfile)
 
     #iterating for all posts taken from subreddit
