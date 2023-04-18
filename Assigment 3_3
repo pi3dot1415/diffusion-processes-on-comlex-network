@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #set topic from previously prepared
-topic = "Pepsi"
+topic = "ChatGPT_100"
 #create empty directed graph
 G = nx.DiGraph()
 
@@ -53,6 +53,8 @@ for nds in G.nodes:
     elif G.degree[nds]==maxi:
         celebrities.append(nds)
     degrees.append(G.degree[nds])
+
+#printing model statistics
 print(f"number of users which have more friends that in average: {sum(n_friends>np.mean(n_friends))}, (average = {np.mean(n_friends)})")
 print(f"connection of one celebrity: {maxi} \n  list of celebrities: {celebrities}")
 bc=nx.betweenness_centrality(G)
@@ -60,10 +62,12 @@ print("Non-zero betweeness centralities:")
 for nds in G.nodes:
     if bc[nds]>0:
         print(f"  name: {nds},  coefficient: {bc[nds]}")
-#plt.hist(degrees, bins=list(np.arange(0.5, np.max(degrees)+1.5, 1)), edgecolor='black')
-#plt.xticks(list(np.arange(np.max(degrees)+1)))
-#plt.grid(True)
-#plt.show()
 
-nx.draw_circular(G, node_size=2)
+#ploting degree distribution
+plt.hist(degrees, bins=list(np.arange(0.5, np.max(degrees)+1.5, 1)), edgecolor='black')
+plt.xticks(list(np.arange(np.max(degrees)+1)))
+plt.grid(True)
 plt.show()
+
+#nx.draw_circular(G, node_size=2)
+#TODO communication bottlenecks
