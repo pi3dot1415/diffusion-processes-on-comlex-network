@@ -43,31 +43,47 @@ n_friends=[]
 
 #iterating for every node (to determine which are celebrities and if it friend paradox in network)
 for nds in G.nodes:
+    #some temporary variables
     neighs = 0
+    f_neighs=0
+    itr=0
+    #checking frinds paradox
     for  verts in nx.neighbors(G, nds):
         neighs+=1
-    n_friends.append(neighs)
+        for vrts in nx.neighbors(G, verts):
+            f_neighs+=1
+        itr+=1 
+    if itr>0:
+        n_friends.append(neighs>f_neighs/itr)
+    #searching celebrity(/ies)
     if G.degree[nds]>maxi:
         maxi=G.degree[nds]
         celebrities=[nds]
     elif G.degree[nds]==maxi:
         celebrities.append(nds)
+    
     degrees.append(G.degree[nds])
 
 #printing model statistics
-print(f"number of users which have more friends that in average: {sum(n_friends>np.mean(n_friends))}, (average = {np.mean(n_friends)})")
+print(f"number of users which have more connections than users connected with them in average: {sum(n_friends)}")
 print(f"connection of one celebrity: {maxi} \n  list of celebrities: {celebrities}")
 bc=nx.betweenness_centrality(G)
-print("Non-zero betweeness centralities:")
+maxi=-1
+max_nds=None
 for nds in G.nodes:
-    if bc[nds]>0:
-        print(f"  name: {nds},  coefficient: {bc[nds]}")
-
+    if bc[nds]>maxi:
+        maxi = bc[nds]
+        max_nds=nds
+print(f"Comunication bottleness: {max_nds} (with coefficient: {maxi})")
 #ploting degree distribution
-plt.hist(degrees, bins=list(np.arange(0.5, np.max(degrees)+1.5, 1)), edgecolor='black')
-plt.xticks(list(np.arange(np.max(degrees)+1)))
+plt.hist(degrees, bins=list(np.arange(0.5, np.max(degrees)+1.5, 1)), edgecolor='black', density=True)
+plt.xlabel("degree")
+plt.ylabel("probability")
+plt.title("density of graph degree")
+plt.xticks(list(np.arange(0, np.max(degrees)+1, 10)))
 plt.grid(True)
 plt.show()
 
 #nx.draw_circular(G, node_size=2)
-#TODO communication bottlenecks
+
+nx.write_gml(G, f"graph{topic}.gml")
