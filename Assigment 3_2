@@ -4,13 +4,13 @@
 import praw
 import csv
 
-#auhentication to reddit
+#auhentication to reddit (private data deleted)
 reddit = praw.Reddit(
     client_id="",
     client_secret="",
     password="",
     user_agent="http://localhost:8888",
-    username="",
+    username=""
 )
 
 #choosing topic
