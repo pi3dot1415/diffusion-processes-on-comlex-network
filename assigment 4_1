@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+from PIL import Image
 
-path = "C:\\Users\\Mateusz Kasprzak\\studia\\diffiuson processes\\assigment 4\\movie"
+path = "C:\\Users\\lab\\Desktop\\249710"
 
 def step(x:int, y:int, lmt:int)->tuple:
     """
@@ -15,7 +17,9 @@ def step(x:int, y:int, lmt:int)->tuple:
 
     return (x,y)
 
-def simulation(path:str, x0:int=0, y0:int=0, lmt:int=30, steps:int=10, frames:int=30)->None:
+def simulation(path:str, x0:int=0, y0:int=0, lmt:int=30, steps:int=100)->None:
+    """
+    """
     x, y = x0, y0
     for i in range (steps):
         (x, y) = step(x, y, lmt)
@@ -25,14 +29,25 @@ def simulation(path:str, x0:int=0, y0:int=0, lmt:int=30, steps:int=10, frames:in
         plt.ylim([-lmt-1,lmt+1])
         plt.grid(True)
         plt.legend(["(x0,y0)", "agent"],loc=1)
-        plt.title("agent movement")
+        plt.title(f"{(i+1)}/{steps}")
         plt.xlabel("x - axis")
         plt.ylabel("y - axis")
-        plt.xticks(np.arange(2*lmt+3)-lmt-1, labels = [])
-        plt.yticks(np.arange(2*lmt+3)-lmt-1, labels = [])
-        plt.savefig(f"{path}\\_{i+1}.png")
+        plt.xticks(np.arange(2*lmt+1)-lmt, labels = [])
+        plt.yticks(np.arange(2*lmt+1)-lmt, labels = [])
+        plt.savefig(f"{path}\\gif\\_{i+1001}.png")
         plt.cla()
 
+def save_gif(path:str, frames:int=15)->None:
+    """
+    """
+    images = []
+    
+    for files in os.listdir(f"{path}\\gif"):
+        img = Image.open(f"{path}\\gif\\{files}")
+        images.append(img)
+    
+    images[0].save(f"{path}\\animation.gif", append_images=images[1:], save_all=True, duration=len(images)*frames/60, loop=1)
 
 
 simulation(path)
+save_gif(path)
