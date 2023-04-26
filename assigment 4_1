@@ -1,34 +1,73 @@
+#Importing needed libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 from PIL import Image
 
+#Adding path where gif may be saved
 path = "C:\\Users\\lab\\Desktop\\249710"
-
 def step(x:int, y:int, lmt:int)->tuple:
     """
+    Function calculate returns position of agent after particular step oslf simulation
+    
+    Arguments:
+        x (int): x coordinate before step. Has to be in interval [-lmt, lmt].
+        y (int): y coordinate before step. Has to be in interval [-lmt, lmt].
+        lmt (int): boundary of square latice, Restricts agent movement to [-lmt, lmt] on, both, x-axis and y-axis.
+    
+    Returns:
+    	(x, y) (tuple): Tuple of coordinates after step.
     """
+    #Creating list ofnpossiblendirections.
     directions = [(0,-1),(0,1),(-1,0),(1,0)]
+    
+    #Randomly choose onenofnthem.
     new_dir = directions[np.random.randint(4)]
+    
+    #If after move in chosen direction agent go out from limited area, we choosing direction while its possible to go.
     while (abs(x+new_dir[0])>lmt) or (abs(y+new_dir[1])>lmt):
         new_dir = directions[np.random.randint(4)]
+    
+    #Calculating new coordinates.
     x += new_dir[0]
     y += new_dir[1]
-
+    
+    #Returning them.
     return (x,y)
 
 def simulation(path:str, x0:int=0, y0:int=0, lmt:int=30, steps:int=100)->None:
     """
+    Function make simulation of movement of agent on square latice. Also saves plot of every step of simulation.
+    
+    Arguments:
+    	path (str): path to folder to store images.
+    	x0 (int): [deafult = 0] initial position of x, has be from [-lmt, lmt].
+    	y0 (int): [deafult = 0] initial position of y, has be from [-lmt, lmt].
+    	lmt (int): [deafult = 30] boundary of square latice, Restricts agent movement to [-lmt, lmt] on, both, x-axis and y-axis.
+    	steps (int): [deafult = 100] number of steps in simulations.
+    
+    Return:
+    	None
     """
+    #Setting x, y its initial values (for consistency).
     x, y = x0, y0
+    
+    #Creates list to store history of x and y coordinates
     X=[]
     Y=[]
+    
+    #for given number of steps
     for i in range (steps):
+        #calculate new position of agent
         (x, y) = step(x, y, lmt)
+        #append him coordinates to lists
         X.append(x)
         Y.append(y)
+        #plot previous positions of agent
         plt.plot(X, Y, "blue", alpha=0.8)
+        #plot initial coordinates
         plt.scatter(x0, y0, c="red", alpha=0.5)
+        #plot current position
         plt.scatter(x, y, c="blue")
         plt.xlim([-lmt-1,lmt+1])
         plt.ylim([-lmt-1,lmt+1])
@@ -39,20 +78,34 @@ def simulation(path:str, x0:int=0, y0:int=0, lmt:int=30, steps:int=100)->None:
         plt.ylabel("y - axis")
         plt.xticks(np.arange(2*lmt+1)-lmt, labels = [])
         plt.yticks(np.arange(2*lmt+1)-lmt, labels = [])
-        plt.savefig(f"{path}\\gif\\_{i+1001}.png")
+        #save plot to file
+        plt.savefig(f"{path}\\_{i+1001}.png")
+        #clear plot
         plt.cla()
 
 def save_gif(path:str, frames:int=15)->None:
     """
+    Function to create GIF file from images
+    
+    Arguments:
+    	path (str): path to folder where GIF may be saved
+    	frames (int): number of frames in one minute
+
+    Return:
+        None
     """
+    
+    #Create list to store images
     images = []
     
+    #Appending all of the images to list
     for files in os.listdir(f"{path}\\gif"):
         img = Image.open(f"{path}\\gif\\{files}")
         images.append(img)
     
+    #Create the GIF file and save it.
     images[0].save(f"{path}\\animation.gif", append_images=images[1:], save_all=True, duration=len(images)/frames*60, loop=1)
 
-
-simulation(path)
+#Running simulation with deafult parameters and save it to GIF
+simulation(path+"\\gif")
 save_gif(path)
