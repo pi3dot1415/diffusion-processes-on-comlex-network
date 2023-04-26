@@ -21,14 +21,19 @@ def simulation(path:str, x0:int=0, y0:int=0, lmt:int=30, steps:int=100)->None:
     """
     """
     x, y = x0, y0
+    X=[]
+    Y=[]
     for i in range (steps):
         (x, y) = step(x, y, lmt)
+        X.append(x)
+        Y.append(y)
+        plt.plot(X, Y, "blue", alpha=0.8)
         plt.scatter(x0, y0, c="red", alpha=0.5)
         plt.scatter(x, y, c="blue")
         plt.xlim([-lmt-1,lmt+1])
         plt.ylim([-lmt-1,lmt+1])
         plt.grid(True)
-        plt.legend(["(x0,y0)", "agent"],loc=1)
+        plt.legend(["(x0,y0)", "",  "agent"],loc=1)
         plt.title(f"{(i+1)}/{steps}")
         plt.xlabel("x - axis")
         plt.ylabel("y - axis")
@@ -46,7 +51,7 @@ def save_gif(path:str, frames:int=15)->None:
         img = Image.open(f"{path}\\gif\\{files}")
         images.append(img)
     
-    images[0].save(f"{path}\\animation.gif", append_images=images[1:], save_all=True, duration=len(images)*frames/60, loop=1)
+    images[0].save(f"{path}\\animation.gif", append_images=images[1:], save_all=True, duration=len(images)/frames*60, loop=1)
 
 
 simulation(path)
