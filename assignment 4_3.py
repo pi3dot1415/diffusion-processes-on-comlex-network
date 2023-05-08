@@ -52,17 +52,29 @@ def barabasiAlbertGraph (N:int, M:list) -> nx.Graph:
                 graph.add_edge(nds, t[i])
     return graph
 
-g = nx.Graph()
+def step (graph:nx.Graph, node:float|str)->float|str:
+    """
+    Function choosing node for next agent movement.
 
-def step (graph:nx.Graph, node:str)->float|str:
+    Arguments:
+        garph (nx.Graph): graph on which agent moving.
+        node (float|str): node on which agent already is.
+
+    Return:
+        new_node (float|str): node on which agent will go after step
     """
-    """
+
+    #Creating list to store neighbors list
     list_of_neighbors = []
     
+    #Adding neighbors to list
     for neigh in graph.neighbors(node):
         list_of_neighbors.append(neigh)
 
-    return np.random.choice(list_of_neighbors)
+    #Choosing next node which agent hit
+    new_node = np.random.choice(list_of_neighbors)
+    
+    return new_node
 
 def full_simulation (graph:nx.Graph, node:float|str, steps:int=20)->list:
     """
@@ -98,8 +110,10 @@ def save_gif(path:str, frames:int=5)->None:
     #Create the GIF file and save it.
     images[0].save(f"{path}\\animation_3.gif", append_images=images[1:], save_all=True, duration=len(images)/frames*60, loop=1)
 
+#Creating emty list to store initial edges
 M1=[]
 
+#Adding randomly choosen initial edges to list
 for i in range(13):
     for j in range(13):
         if i>j:
@@ -107,38 +121,57 @@ for i in range(13):
             if p1<0.05:
                 M1.append((i,j))
 
+#Creating Barabasi Albert graph with 20 nodes
 graph = barabasiAlbertGraph(20, M1)
 
+#Set number of steps to 100
 steps=100
 
+#Running simulation
 visited = full_simulation(graph, 2, steps)
 
+#Creating list of all nodes
 node_list=[]
 for n in graph.nodes():
     node_list.append(n)
 
+#Getting dictionary of possitions of nodes and edges
 pos = nx.spring_layout(graph)
 
+#Saving frames of simulation
 for i in range (steps+1):
-    graph.nodes(data="green")
+    #Draw all graph nodes with blue color
     nx.draw_networkx_nodes(graph, nodelist=node_list, pos=pos, node_color="blue", label="nodes", node_size=170)
+    #Draw node with agent with green (owerdraw previous one)
     nx.draw_networkx_nodes(graph, pos=pos, node_color="green", nodelist=[visited[i]], label="agent", node_size=170)
+    #Draw all edges
     nx.draw_networkx_edges(graph, edgelist=graph.edges(), pos=pos)
+    #Create legend and title
     plt.legend(scatterpoints = True)
     plt.title(f"agent movement: {i}/{steps}")
+    #Save figure and clear plot
     plt.savefig(f"{path}\\gif\\_{i+steps+1}.png")
     plt.cla()
 
 #Running simulation with deafult parameters and save it to GIF
 save_gif(path)
 
-#making simulation for 100 nodes
+#Making simulation for 100 nodes
 graph2 = barabasiAlbertGraph(100, M1)
 
+#Creating list of all nodes
+node_list2=[]
+for n in graph2.nodes():
+    node_list2.append(n)
+
+#Set step number for 1000, and randomly choose origin node
 steps2 = 1000
-origin = 12
+origin = np.random.choice(node_list2)
+
+#Run simulation for second graph
 visited2 = full_simulation(graph2, origin, steps2)
 
+#Print number of hits for every node
 for verts in graph2.nodes():
     if verts == origin:
         print(f"Node {verts} (origin) was hitted {visited2.count(verts)} times")
