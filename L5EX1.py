@@ -3,9 +3,9 @@
 
 # ## TODO:
 # - Finish point b) of excersise 1
-# - Finish excersise 2
-# - Made excersise 3
-# - And, of course, coments and documentation
+# - Finish excersise 2 (c,d,e,f)
+# - Finish excersise 3 (what output should it have?)
+# - And, of course, comments and documentation (only to not made parts)
 
 # ### Excersise 1
 
@@ -147,65 +147,15 @@ model_SIR(S, I, R, beta5, r5, T)
 
 # Creating functions
 
-# In[10]:
+# In[48]:
 
 
-def model_SI (S:int, I:int, beta:float, r:float, T:float) -> None:
-    '''
-    Function generates quiver plo (based on SI model) 
-    which show number of infected, suspectibe in time for given parameters.
-    
-    Arguments:
-        S (int): Number of suspectible
-        I (int): Number of infected
-        beta (float): parameter for infectivity
-        r (float): recovery rate (constant per capita)
-        T (float): Time of simulation (there is 365*T+1 steps in simulation)
-    
-    Return:
-        None
-    '''
-    
-    #initial conditions
-    y0 = (S, I)
-    
-    #vector of t in [0,T]
-    t=np.linspace(0, T, T*365+1)
-    
-    y1 = np.arange(.0004, .0020, .0001)
-    y2 = np.arange(.1, .9, .05)
-
-    beta, r = np.meshgrid(y1, y2)
-
-    u, v = np.zeros(beta.shape), np.zeros(r.shape)
-
-    NI, NJ = beta.shape
-
-    for i in range(NI):
-        for j in range(NJ):
-            x = beta[i, j]
-            y = r[i, j]
-            yprime = odeint(ode_SI, y0, t, args=(x,y))[-1]
-            u[i,j] = yprime[0]
-            v[i,j] = yprime[1]
-        
-    fig, ax = plt.subplots()
-    q = ax.quiver(y1,y2,u,v)
-    ax.set_xlabel("$\\beta$")
-    ax.set_ylabel("r")
-    plt.show()
-
-
-# In[41]:
-
-
-def ode_SI(y:tuple, t:np.ndarray, beta:float, r:float):
+def ode_SI(y:tuple, beta:float, r:float):
     """
     Function solves SI models ODE.
     
     Arguments:
-        y (tuple): initial condition for S, I & R
-        t (np.ndarray); array of times
+        y (tuple): initial condition for S and I
         beta (beta): parameter for infectivity
         r (float): recovery rate
     Return:
@@ -217,71 +167,38 @@ def ode_SI(y:tuple, t:np.ndarray, beta:float, r:float):
     return dydt
 
 
-# Try to solve this excercice
+# Phase portair
 
-# In[48]:
-
-
-beta,r = np.meshgrid(np.arange(.0004, .0020, .0001), np.arange(.1, .9, .05))
-z = beta*np.exp(-beta**2 - r**2)
-v, u = np.gradient(z, .2, .2)
-fig, ax = plt.subplots()
-q = ax.quiver(beta,r,u,v)
-ax.set_xlabel("$\\beta$")
-ax.set_ylabel("r")
-plt.show()
+# In[47]:
 
 
-# In[51]:
+#Maximum number of initial S and I
+N=1000
 
+#Lists of S and I values
+y1 = np.arange(0, N, 50)
+y2 = np.arange(0, N, 50)
 
-y1 = np.arange(0, T, 1)
-y2 = np.arange(0, )
+#setting values for beta and r
+beta = 0.00008
+r = 0.15
 
-beta, r = np.meshgrid(y1, y2)
-v, u = np.gradient(z, .2, .2)
+#create zero-matrixes for u and v
+u, v = np.zeros((len(y1),len(y1))), np.zeros((len(y1),len(y1)))
 
-def f(Y, t):
-    y1, y2 = Y
-    return [y2, 100*np.cos(y1)]
-
-t = 10
-
-u, v = np.zeros(beta.shape), np.zeros(r.shape)
-
-
-NI, NJ = beta.shape
+NI, NJ = len(y1), len(y2)
 
 for i in range(NI):
     for j in range(NJ):
-        x = u[i, j]
-        y = v[i, j]
-        yprime = ode_SI([y1, y2], t, beta, r)
+        yprime = ode_SI([y1[i], y2[j]], beta, r)
         u[i,j] = yprime[0]
         v[i,j] = yprime[1]
         
-fig, ax = plt.subplots()
-q = ax.quiver(y1,y2,u,v)
-ax.set_xlabel("$\\beta$")
-ax.set_ylabel("r")
-plt.show()
-
-
-# In[50]:
-
-
-yS = np.arange(0, S+I, 40)
-yI = np.arange(0, S+I, 40)
-
-x, y = np.meshgrid(yS, yI)
-
-u=x
-v=y
-
-fig, ax = plt.subplots()
-q = ax.quiver(yS,yI,u,v)
-ax.set_xlabel("$\\beta$")
-ax.set_ylabel("r")
+plt.figure(figsize=(10,8))
+plt.quiver(y1,y2,u,v)
+plt.title(f"Phase portair for $\\beta={beta}$ and $r={r}$")
+plt.xlabel("S")
+plt.ylabel("I")
 plt.show()
 
 
@@ -332,6 +249,8 @@ def total_of_SI (S:int, I:int, beta:float, r:float, T:float) -> None:
     plt.show()
 
 
+# Simulations for different parameters
+
 # In[53]:
 
 
@@ -366,7 +285,7 @@ total_of_SI(S, I, beta5, r3, T)
 
 # importing libraries
 
-# In[102]:
+# In[49]:
 
 
 import networkx as nx
@@ -376,7 +295,7 @@ import matplotlib.pyplot as plt
 
 # creating definitions
 
-# In[239]:
+# In[50]:
 
 
 def model_SIR_on_graph (G:nx.Graph, I:any, p:float) -> tuple:
@@ -404,32 +323,38 @@ def model_SIR_on_graph (G:nx.Graph, I:any, p:float) -> tuple:
     Infected = [I]
     Removed = []
     
+    #Other useful list and variables
     all_nodes=len(Susceptible)
     iterator = 0 
     Num_inf = [1/all_nodes]
     
+    #run loop over all simulation
     while len(Infected)>0:
+        #temporary variable for new infected
         temp_inf=[]
+        #checking if any of infected node spread desease for their neighbour
         for inf in Infected:
             for neigh in G.neighbors(inf):
                 if (neigh in Susceptible) & (neigh not in temp_inf):
                     if np.random.random()<p:
                         temp_inf.append(neigh)
-                        try:
-                            Susceptible.remove(neigh)
-                        except:
-                            pass
+                        Susceptible.remove(neigh)
+        
+        #removing all previously infected and replace them with new infected 
         Removed += Infected
         Infected = temp_inf
+        #increase number of counter and number infected to history
         iterator += 1
         Num_inf.append(len(Infected)/all_nodes)
-        
+    
+    #calculate time of maximum number of infected and total number of infected
     max_inf_time=Num_inf.index(max(Num_inf))
     total_inf = len(Removed)
+    
     return(Num_inf, total_inf, iterator, max_inf_time)
 
 
-# In[198]:
+# In[54]:
 
 
 #Create list of probabilities and set number of iterations to 100
@@ -463,7 +388,7 @@ for prob in probs:
             res[i] += one_res[0][i]/(m**2*iters)
 
     #Plot results
-    plt.plot(t[:max_inf], res[:max_inf], label=str(prob))
+    plt.plot(t[:max_inf], res[:max_inf], label="p="+str(prob))
 
 print(max_inf)
 plt.legend()
@@ -473,7 +398,7 @@ plt.xlabel("Time")
 plt.ylabel("Average percent of nodes infected during simulation")
 
 
-# In[214]:
+# In[51]:
 
 
 #random graph
@@ -499,7 +424,7 @@ for prob in probs:
             res[i] += one_res[0][i]/(N*iters)
 
     #Plot results
-    plt.plot(t[:max_inf], res[:max_inf], label=str(prob))
+    plt.plot(t[:max_inf], res[:max_inf], label="p="+str(prob))
 
 print(max_inf)
 plt.legend()
@@ -537,7 +462,7 @@ for prob in probs:
             res[i] += one_res[0][i]/(N*iters)
 
     #Plot results
-    plt.plot(t[:max_inf], res[:max_inf], label=str(prob))
+    plt.plot(t[:max_inf], res[:max_inf], label="p="+str(prob))
 
 print(max_inf)
 plt.legend()
@@ -547,7 +472,7 @@ plt.xlabel("Time")
 plt.ylabel("Average percent of nodes infected during simulation")
 
 
-# In[97]:
+# In[59]:
 
 
 #Barabasi-Albert graph
@@ -556,7 +481,7 @@ N = 100 #overall population
 I_barabasi = np.random.randint(N) # randomly choosing first infected node
 
 
-# In[220]:
+# In[60]:
 
 
 #Loop for simulate on all of probabilities on list
@@ -565,7 +490,7 @@ for prob in probs:
     res=np.zeros(100)
     #100 times we simulate SIR model 
     for i in range (iters):
-        G_random = nx.barabasi_albert_graph(N, m)
+        G_barabasi = nx.barabasi_albert_graph(N, m)
         one_res = model_SIR_on_graph(G_barabasi, I_barabasi, prob)
         if one_res[2]>max_inf:
             max_inf=one_res[2]
@@ -573,7 +498,7 @@ for prob in probs:
             res[i] += one_res[0][i]/(N*iters)
 
     #Plot results
-    plt.plot(t[:max_inf], res[:max_inf], label=str(prob))
+    plt.plot(t[:max_inf], res[:max_inf], label="p="+str(prob))
 
 print(max_inf)
 plt.legend()
@@ -711,5 +636,106 @@ plt.ylabel("Time")
 # - Finish above task for different graphs
 # - What each of the above measures tells you about the different networks?
 # - Make gif
+
+# ### Excersise 3
+
+# In[270]:
+
+
+def model_SIR_on_graph_cont (G:nx.Graph, I:any, p:float) -> tuple:
+    """
+    Function create continous simulation of SIR model on graph.
+    The simulation runs untill there is zero infected nodes
+    
+    Arguments:
+        G (nx.Graph): graph on which simulation will be run
+        I (int|float|str): infected node
+        p (float): probability of spreading virus
+    
+    Return:
+        Num_inf (list): history of number of infected nodes during time
+        total_inf (int): number of all nodes which were infected during simulation
+        iterator (int): time of pandemic
+        max_inf_time (int): time when were the most infected people
+    """
+    #Creating lists for all possible cases for nodes
+    nodes = G.nodes()
+    Susceptible = []
+    All_nodes =[]
+    for nds in nodes:
+        Susceptible.append(nds)
+        All_nodes.append(nds)
+    Susceptible.remove(I)
+    Infected = [I]
+    Removed = []
+    
+    #list to store history of desease
+    Num_inf=[]
+    
+    #run simulation until the pandemic is over
+    while len(Infected)>0:
+        # randomly choose node to check
+        nds = All_nodes[np.random.randint(len(All_nodes))]
+        
+        #if node is infected we check its neighbors and if it may be infected
+        if nds in Infected:
+            for neigh in G.neighbors(nds):
+                if neigh in Susceptible:
+                    if np.random.random()<p:
+                        #if node get infection we remove it from Susceptible and add to Infected
+                        Infected.append(neigh)
+                        Susceptible.remove(neigh)
+            
+            #removes choosed node from infected
+            Removed += nds
+            Infected.remove(nds)
+            Num_inf.append(len(Infected))
+        
+    return Num_inf
+
+
+# In[264]:
+
+
+#Create list of probabilities and set number of iterations to 100
+probs = [0.1, 0.5, 0.9]
+iters = 100
+
+
+# In[271]:
+
+
+#random graph
+N=100 #overall population
+p1=0.11 #probabillity of creation edge
+I_random = np.random.randint(N) # randomly choosing first infected node
+
+
+# In[272]:
+
+
+#Loop for simulate on all of probabilities on list
+for prob in probs:
+    max_inf=0
+    res=[]
+    #100 times we simulate SIR model 
+    for j in range (iters):
+        G_latice = nx.grid_2d_graph(m,m)
+        one_res = model_SIR_on_graph_cont(G_latice, I_latice, prob)
+        for i in range(len(one_res)):
+            try:
+                res[i]=one_res[i]/(m**2*iters)
+            except:
+                res.append(one_res[i]/(m**2*iters))
+
+    #Plot results
+    plt.plot(res, linestyle="", marker=".", label=str(prob))
+
+plt.legend()
+plt.grid(True)
+plt.title("Percent of infected nodes (Square Latice)")
+plt.xlabel("Time")
+plt.ylabel("Average percent of nodes infected during simulation")
+
 
 # In[ ]:
